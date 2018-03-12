@@ -1,0 +1,14 @@
+---
+apis:
+  - name: sample_api
+    ensure: present
+    attributes:
+      uris: /sample
+      strip_uri: true
+      upstream_url: http://api.icndb.com/jokes/random
+    plugins:
+      - name: statsd
+        attributes:
+          config:
+            host: statsd
+            port: 8125

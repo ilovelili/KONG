@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+  #######################################
+  # Postgres: The database used by Kong
+  #######################################
+  kong-database:
+    image: postgres:9.4    
+    env_file: config/postgres.env    
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  #######################################
+  # Kong: The API Gateway
+  #######################################
+  kong-migration:    
+    image: "kong"
+    restart: always
+    env_file: config/kong.env
+    links:
+      - kong-database
+    command: kong migrations up
+
+  kong:    
+    image: "kong"
+    restart: always
+    env_file: config/kong.env    
+    links:
+      - kong-database
+      - kong-migration
+    ports:
+      - "${KONG_PORT:-8001}:8001"
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
+      interval: 5s
+      retries: 10
+
+  #######################################
+  # Konga: Kong GUI
+  #######################################
+  konga:
+    image: "pantsel/konga:latest"
+    restart: always
+    env_file: config/konga.env
+    links:
+      - kong
+    ports:
+      - "${KONGA_PORT:-1337}:1337"
+
+volumes:  
+  db-data:

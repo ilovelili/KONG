@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  #######################################
+  # InfluxDb: The time serie database
+  #######################################
+  influxdb:
+    image: "influxdb:latest"    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    ports:
+      - "${INFLUX_WEB_PORT:-8083}:8083"
+      - "${INFLUX_DB_PORT:-8086}:8086"
+
+  #######################################
+  # Telegraf: The StatsD agent
+  #######################################
+  telegraf:
+    build: ./dockerfiles/telegraf/
+    image: "telegraf-statsd:latest"
+    links:
+      - influxdb
+    restart: always
+
+  #######################################
+  # Grafana: The metrics dashboard
+  #######################################
+  grafana:
+    image: "grafana/grafana:latest"    
+    env_file: config/grafana.env
+    ports:
+      - "3000:3000"
+    links:
+      - telegraf

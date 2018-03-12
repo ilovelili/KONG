@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  #######################################
+  # Configure Kong
+  #######################################
+  config_kong:
+    build: ./dockerfiles/kongfig
+    image: "mh/kong-config:latest"
+    entrypoint: "/bin/sh"
+    command: ["-c", "/configure-kong.sh"]
+    user: root
+    env_file: config/kongfig.env
+    labels:
+      - "traefik.enable=false"

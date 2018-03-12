@@ -1,0 +1,5 @@
+FROM telegraf:latest
+
+LABEL Maintainer="Min Ju <min_ju@invastsec.jp>"
+
+COPY ./telegraf.conf /etc/telegraf/telegraf.conf

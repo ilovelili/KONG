@@ -1,0 +1,12 @@
+FROM node:alpine
+
+LABEL Maintainer="Min Ju <min_ju@invastsec.jp>"
+
+# Install deps
+RUN npm install -g kongfig
+
+# Add configuration file
+ADD kongfig.yml /etc/kong.yml
+
+# Add entrypoint script
+ADD config.sh /configure-kong.sh
